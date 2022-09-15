@@ -1,13 +1,26 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
 import reportWebVitals from './reportWebVitals';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import store from './app/store';
+import App from './App';
+import Login from './components/view/Login';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <Provider store={store}>
+      <BrowserRouter>
+        <Switch>
+          <Route path="/home" component={App} />
+          <Route path="/login" component={Login} />
+          <Route path="*" component={Login} />
+        </Switch>
+      </BrowserRouter>
+    </Provider>
   </React.StrictMode>
 );
 

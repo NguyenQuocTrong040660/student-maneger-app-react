@@ -1,0 +1,31 @@
+.div1{
+    border: 1px solid red;
+}
+
+.scrol-Table{
+    overflow-y:scroll;
+    height:400px;
+}
+.addStudentBtn{
+    position: absolute;
+    bottom: 0px;
+    right: 15px;
+    margin-right: 0px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: red;
+}
+
+.title-it-select{
+    text-align: center;
+    color: white;
+    background-color:#DC143C;
+    width: auto;
+    margin: 0px auto;
+    border-radius: 25px;
+    height: 30px;
+}
+
+.errors{
+    border: 1px solid red;
+}
