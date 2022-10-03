@@ -36,7 +36,7 @@ const userSlice = createSlice({
   //
   name: 'user',
   initialState: {
-    current: localStorage.getItem(StorageKey.USER) || {},
+    current: JSON.parse(localStorage.getItem(StorageKey.USER)) || {},
     settings: {},
   },
 

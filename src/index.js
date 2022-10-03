@@ -17,7 +17,6 @@ root.render(
         <Switch>
           <Route path="/home" component={App} />
           <Route path="/login" component={Login} />
-          <Route path="*" component={Login} />
         </Switch>
       </BrowserRouter>
     </Provider>

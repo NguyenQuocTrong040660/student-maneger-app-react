@@ -8,22 +8,29 @@ import { useEffect } from 'react';
 import clazzAPI from '../../api/clazzAPI';
 import { useForm } from 'react-hook-form';
 import { Input, Select } from './components/Input/Inputs';
-
+import $ from 'jquery';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import studentFamilyAPI from '../../api/studentFamilyAPI';
+import { Redirect, useHistory } from 'react-router-dom';
 Students.propTypes = {};
 
 function Students(props) {
+  const history = useHistory();
+
   const [studentsFirst, setStudentsFirst] = useState([]);
   const [students, setStudents] = useState([]);
   const [clazz, setClazz] = useState([]);
-  console.log(students);
-  console.log(clazz);
+  const [ismodel, setIsmodel] = useState(false);
+
+  const [errors, setErrors] = useState(false);
+  console.log('FirtsStudent', students);
+  console.log('FirtsClazz', clazz);
 
   //call api get ALL Student
   useEffect(() => {
     getStudents();
-  }, []);
+  }, [ismodel]);
 
   const getStudents = () => {
     studentAPI.getAll().then((data) => {
@@ -47,12 +54,13 @@ function Students(props) {
 
   //Begin handel filter Clazz
   const handelChangeClazz = (e) => {
-    let data = e.target.value;
-    console.log(data);
+    const data = e.target.value;
+
     if (data == 'ALL') {
       setStudents(studentsFirst);
     } else {
-      let clazzFilter = studentsFirst.filter((filter) => filter.id == data);
+      const clazzFilter = studentsFirst.filter((item) => item.clazz.id == data);
+
       setStudents([...clazzFilter]);
     }
   };
@@ -84,12 +92,52 @@ function Students(props) {
 
   //Handel Search nameStudent
 
+  //handelClickStudent xu li thong tin student
+  const [nameStudentClickTable, setNameStudentClickTable] = useState('');
+  const handelClickStudent = (e) => {
+    let datastudentTable = studentsFirst.filter((item) => item.id == e);
+
+    const convertdatastudentTable = Object.assign({}, ...datastudentTable);
+    setNameStudentClickTable(convertdatastudentTable.nameStudent);
+  };
+
   //Handel Add student
 
   const { register, handleSubmit } = useForm();
 
-  const onSubmit = (data) => {
-    alert(JSON.stringify(data));
+  const onSubmit = async (e) => {
+    try {
+      const lassdata = clazz.filter((item) => item.id == e.clazzid);
+
+      const objectClazz = Object.assign({}, ...lassdata);
+
+      const dataStudentFamily = {
+        fatherName: e.fatherName,
+        motherName: e.motherName,
+        email1: e.email1,
+        phone1: e.phone1,
+      };
+
+      const data = await studentFamilyAPI.add(dataStudentFamily);
+      const familySubmit = data.data;
+      const dataStudent = {
+        nameStudent: e.nameStudent,
+        birthDate: e.birthDate,
+        gender: e.gender,
+        address: e.address,
+        email: e.email,
+        phone: e.phone,
+        status: 'true',
+        studentFamily: familySubmit,
+        clazz: objectClazz,
+      };
+
+      const responseDataStudent = await studentAPI.add(dataStudent);
+      window.location.reload();
+    } catch (error) {
+      document.getElementById('demo').innerHTML = 'Email must unique';
+      console.log(error);
+    }
   };
 
   return (
@@ -135,7 +183,7 @@ function Students(props) {
                 </thead>
                 <tbody>
                   {students.map((item, index) => (
-                    <tr key={item.id}>
+                    <tr key={item.id} onClick={(e) => handelClickStudent(item.id)}>
                       <td>{index + 1}</td>
                       <td>{`HS${item.id}`}</td>
                       <td>{item.nameStudent}</td>
@@ -153,7 +201,7 @@ function Students(props) {
 
         {/* Begin Left */}
         <div className="col-md-3 container ">
-          <div className="title-it-select">Nguyễn Quốc Trọng</div>
+          <div className="title-it-select">{nameStudentClickTable}</div>
           <div>
             <button
               type="button"
@@ -190,32 +238,48 @@ function Students(props) {
                           label="Tên học sinh"
                           name="nameStudent"
                           register={register}
+                          required
                           pattern="[A-Za-z]"
                         />
 
-                        <Input type="date" label="Ngày sinh" name="birthDate" register={register} />
+                        <Input type="date" label="Ngày sinh" name="birthDate" required register={register} />
 
                         <Select label="Giới tính" {...register('gender')} />
 
-                        <Input type="email" label="Email liên hệ" name="email" register={register} />
+                        <Input type="email" label="Email liên hệ" name="email" register={register} required />
 
-                        <Input type="text" label="phone" name="phone" register={register} />
+                        <Input type="text" label="phone" name="phone" register={register} required />
 
-                        <Input type="text" label="Địa chỉ" name="address" register={register} />
+                        <Input type="text" label="Địa chỉ" name="address" register={register} required />
 
-                        <Input type="text" label="Họ tên cha" name="fatherName" register={register} />
+                        <Input type="text" label="Họ tên cha" name="fatherName" register={register} required />
 
-                        <Input type="text" label="Họ tên mẹ" name="motherName" register={register} />
+                        <Input type="text" label="Họ tên mẹ" name="motherName" register={register} required />
 
-                        <Input type="email" label="Email gia đình" name="email" register={register} />
+                        <Input type="email" label="Email gia đình" name="email1" register={register} required />
+                        <p id="demo" style={{ color: 'red' }}></p>
 
-                        <Input type="text" label="Phone gia đình" name="phone" register={register} />
+                        <Input type="text" label="Phone gia đình" name="phone1" register={register} required />
+
+                        <div className="form-group">
+                          <label>
+                            <b>Lop</b>
+                          </label>
+                          <select {...register('clazzid')} className="custom-select " required>
+                            <option value="ALL"> Chọn Lớp ALL--</option>
+                            {clazz.map((data) => (
+                              <option value={data.id}> {data.nameClazz}</option>
+                            ))}
+                          </select>
+                        </div>
 
                         <div className="modal-footer">
                           <button type="button" className="btn btn-secondary" data-dismiss="modal">
                             Hủy
                           </button>
-                          <input type="submit" className="btn btn-primary" />
+                          <button type="submit" data-target="#myModal" className="btn btn-primary">
+                            Submit
+                          </button>
 
                           <input type="reset" className="btn btn-danger" />
                         </div>

@@ -1,18 +1,18 @@
 import axiosClient from './axiosClient';
 
-const studentAPI = {
+const studentFamilyAPI = {
   getAll(params) {
     const url = '/students';
     return axiosClient.get(url, { params });
   },
 
-  getStudentByClazz(keyID) {
-    const url = `/students/check-vp-hoc-sinh/${keyID}`;
+  get(id) {
+    const url = '/categories/${id}';
     return axiosClient.get(url);
   },
 
   add(data) {
-    const url = '/student';
+    const url = '/student-family';
     return axiosClient.post(url, data);
   },
 
@@ -27,4 +27,4 @@ const studentAPI = {
   },
 };
 
-export default studentAPI;
+export default studentFamilyAPI;

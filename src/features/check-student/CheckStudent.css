@@ -3,3 +3,25 @@
     color: white;
     
     }
+
+    .nagativeMark{
+        color: red;
+        
+    }
+
+    .positiveMark{
+        color:#385ece;
+        
+    }
+
+.material-icons{
+color: rgb(37, 212, 169)
+}
+
+.table tr {
+    cursor: pointer;
+}
+
+.colorWhite{
+    background-color: white;
+}

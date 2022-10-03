@@ -1,7 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import StorageKey from '../../constant/storage-key';
 
 function Slider() {
+  const user = JSON.parse(localStorage.getItem(StorageKey.USER));
+  const id = user.id;
+
   return (
     <>
       {/* Sidebar */}
@@ -41,7 +45,12 @@ function Slider() {
             <i className="fas fa-fw fa-cog" />
             <span>Danh Mục</span>
           </Link>
-          <div id="collapseTwo" className="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+          <div
+            id="collapseTwo"
+            className="collapse active"
+            aria-labelledby="headingTwo"
+            data-parent="#accordionSidebar"
+          >
             <div className="bg-white py-2 collapse-inner rounded">
               <h6 className="collapse-header">Custom Components:</h6>
               <Link to="/home/students" className="collapse-item">
@@ -68,8 +77,11 @@ function Slider() {
           <div id="collapseTwo1" className="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
             <div className="bg-white py-2 collapse-inner rounded">
               <h6 className="collapse-header">Custom Components:</h6>
-              <Link to="/home/check-vp-hoc-sinh" className="collapse-item">
+              <Link to={`/home/check-vp-hoc-sinh/${id}`} className="collapse-item">
                 Check VP Học Sinh
+              </Link>
+              <Link to="/lecture-management" className="collapse-item">
+                Quản Lý Báo Giảng
               </Link>
               <a className="collapse-item" href="cards.html"></a>
             </div>

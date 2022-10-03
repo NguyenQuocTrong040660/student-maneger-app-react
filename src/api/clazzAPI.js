@@ -6,24 +6,20 @@ const clazzAPI = {
     return axiosClient.get(url, { params });
   },
 
-  get(id) {
-    const url = '/categories/${id}';
+  //table clazz-teacher => get record have role Quan Nhiem
+  getClazzTeacher(id) {
+    const url = `/clazz-teacher/${id}`;
     return axiosClient.get(url);
   },
 
-  add(data) {
-    const url = '/categories';
-    return axiosClient.post(url, data);
+  getClazz(id) {
+    const url = `/clazz/${id}`;
+    return axiosClient.get(url);
   },
 
-  update(data) {
-    const url = '/categories/${data.id}';
-    return axiosClient.patch(url, data);
-  },
-
-  remove(id) {
-    const url = '/categories/${id}';
-    return axiosClient.delete(url);
+  getClazzByTeacherId(id) {
+    const url = `/clazz-teacher/${id}`;
+    return axiosClient.post(url);
   },
 };
 

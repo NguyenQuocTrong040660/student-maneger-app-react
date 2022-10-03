@@ -19,8 +19,8 @@ export const Select = React.forwardRef(({ onChange, name, label }, ref) => (
         <b>{label}</b>
       </label>
       <select name={name} ref={ref} onChange={onChange}>
-        <option value="0">Nữ</option>
-        <option value="1">Nam</option>
+        <option value="false">Nữ</option>
+        <option value="true">Nam</option>
       </select>
     </div>
   </>
