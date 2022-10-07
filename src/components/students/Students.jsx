@@ -56,10 +56,10 @@ function Students(props) {
   const handelChangeClazz = (e) => {
     const data = e.target.value;
 
-    if (data == 'ALL') {
+    if (data === 'ALL') {
       setStudents(studentsFirst);
     } else {
-      const clazzFilter = studentsFirst.filter((item) => item.clazz.id == data);
+      const clazzFilter = studentsFirst.filter((item) => item.clazz.id === data);
 
       setStudents([...clazzFilter]);
     }

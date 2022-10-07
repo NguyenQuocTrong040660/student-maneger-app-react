@@ -1,15 +1,31 @@
-import React from "react";
-
+import { useSnackbar } from 'notistack';
+import React from 'react';
+import { useDispatch } from 'react-redux';
+import { useHistory } from 'react-router-dom';
+import { logout } from '../view/userSlice';
 function Header() {
+  const { enqueueSnackbar } = useSnackbar();
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const handelSubmitLogout = async (e) => {
+    try {
+      //nhan payload tu userSlice reudx
+      const action = logout();
+      console.log('action', action);
+      const resultAction = await dispatch(action);
+      enqueueSnackbar('Logout success', { variant: 'success' });
+
+      history.push('/login');
+    } catch (error) {
+      enqueueSnackbar('Logout thất bại!', { variant: 'error' });
+    }
+  };
   return (
     <div>
       {/* Topbar */}
       <nav className="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
         {/* Sidebar Toggle (Topbar) */}
-        <button
-          id="sidebarToggleTop"
-          className="btn btn-link d-md-none rounded-circle mr-3"
-        >
+        <button id="sidebarToggleTop" className="btn btn-link d-md-none rounded-circle mr-3">
           <i className="fa fa-bars" />
         </button>
         {/* Topbar Search */}
@@ -96,9 +112,7 @@ function Header() {
                 </div>
                 <div>
                   <div className="small text-gray-500">December 12, 2019</div>
-                  <span className="font-weight-bold">
-                    A new monthly report is ready to download!
-                  </span>
+                  <span className="font-weight-bold">A new monthly report is ready to download!</span>
                 </div>
               </a>
               <a className="dropdown-item d-flex align-items-center" href="#">
@@ -120,14 +134,10 @@ function Header() {
                 </div>
                 <div>
                   <div className="small text-gray-500">December 2, 2019</div>
-                  Spending Alert: We've noticed unusually high spending for your
-                  account.
+                  Spending Alert: We've noticed unusually high spending for your account.
                 </div>
               </a>
-              <a
-                className="dropdown-item text-center small text-gray-500"
-                href="#"
-              >
+              <a className="dropdown-item text-center small text-gray-500" href="#">
                 Show All Alerts
               </a>
             </div>
@@ -155,79 +165,54 @@ function Header() {
               <h6 className="dropdown-header">Message Center</h6>
               <a className="dropdown-item d-flex align-items-center" href="#">
                 <div className="dropdown-list-image mr-3">
-                  <img
-                    className="rounded-circle"
-                    src="img/undraw_profile_1.svg"
-                    alt="..."
-                  />
+                  <img className="rounded-circle" src="img/undraw_profile_1.svg" alt="..." />
                   <div className="status-indicator bg-success" />
                 </div>
                 <div className="font-weight-bold">
                   <div className="text-truncate">
-                    Hi there! I am wondering if you can help me with a problem
-                    I've been having.
+                    Hi there! I am wondering if you can help me with a problem I've been having.
                   </div>
                   <div className="small text-gray-500">Emily Fowler · 58m</div>
                 </div>
               </a>
               <a className="dropdown-item d-flex align-items-center" href="#">
                 <div className="dropdown-list-image mr-3">
-                  <img
-                    className="rounded-circle"
-                    src="img/undraw_profile_2.svg"
-                    alt="..."
-                  />
+                  <img className="rounded-circle" src="img/undraw_profile_2.svg" alt="..." />
                   <div className="status-indicator" />
                 </div>
                 <div>
                   <div className="text-truncate">
-                    I have the photos that you ordered last month, how would you
-                    like them sent to you?
+                    I have the photos that you ordered last month, how would you like them sent to you?
                   </div>
                   <div className="small text-gray-500">Jae Chun · 1d</div>
                 </div>
               </a>
               <a className="dropdown-item d-flex align-items-center" href="#">
                 <div className="dropdown-list-image mr-3">
-                  <img
-                    className="rounded-circle"
-                    src="img/undraw_profile_3.svg"
-                    alt="..."
-                  />
+                  <img className="rounded-circle" src="img/undraw_profile_3.svg" alt="..." />
                   <div className="status-indicator bg-warning" />
                 </div>
                 <div>
                   <div className="text-truncate">
-                    Last month's report looks great, I am very happy with the
-                    progress so far, keep up the good work!
+                    Last month's report looks great, I am very happy with the progress so far, keep up the good work!
                   </div>
                   <div className="small text-gray-500">Morgan Alvarez · 2d</div>
                 </div>
               </a>
               <a className="dropdown-item d-flex align-items-center" href="#">
                 <div className="dropdown-list-image mr-3">
-                  <img
-                    className="rounded-circle"
-                    src="https://source.unsplash.com/Mv9hjnEUHR4/60x60"
-                    alt="..."
-                  />
+                  <img className="rounded-circle" src="https://source.unsplash.com/Mv9hjnEUHR4/60x60" alt="..." />
                   <div className="status-indicator bg-success" />
                 </div>
                 <div>
                   <div className="text-truncate">
-                    Am I a good boy? The reason I ask is because someone told me
-                    that people say this to all dogs, even if they aren't
-                    good...
+                    Am I a good boy? The reason I ask is because someone told me that people say this to all dogs, even
+                    if they aren't good...
                   </div>
-                  <div className="small text-gray-500">
-                    Chicken the Dog · 2w
-                  </div>
+                  <div className="small text-gray-500">Chicken the Dog · 2w</div>
                 </div>
               </a>
-              <a
-                className="dropdown-item text-center small text-gray-500"
-                href="#"
-              >
+              <a className="dropdown-item text-center small text-gray-500" href="#">
                 Read More Messages
               </a>
             </div>
@@ -244,19 +229,11 @@ function Header() {
               aria-haspopup="true"
               aria-expanded="false"
             >
-              <span className="mr-2 d-none d-lg-inline text-gray-600 small">
-                Douglas McGee
-              </span>
-              <img
-                className="img-profile rounded-circle"
-                src="img/undraw_profile.svg"
-              />
+              <span className="mr-2 d-none d-lg-inline text-gray-600 small">Douglas McGee</span>
+              <img className="img-profile rounded-circle" src="img/undraw_profile.svg" />
             </a>
             {/* Dropdown - User Information */}
-            <div
-              className="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-              aria-labelledby="userDropdown"
-            >
+            <div className="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
               <a className="dropdown-item" href="#">
                 <i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400" />
                 Profile
@@ -270,7 +247,7 @@ function Header() {
                 Activity Log
               </a>
               <div className="dropdown-divider" />
-              <a
+              {/* <a
                 className="dropdown-item"
                 href="#"
                 data-toggle="modal"
@@ -278,7 +255,10 @@ function Header() {
               >
                 <i className="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400" />
                 Logout
-              </a>
+              </a> */}
+              <button onClick={(e) => handelSubmitLogout(e)} className="dropdown-item">
+                Logout
+              </button>
             </div>
           </li>
         </ul>

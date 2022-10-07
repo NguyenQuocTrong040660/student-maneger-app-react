@@ -9,6 +9,7 @@ import Students from './components/students/Students';
 import CheckStudent from './features/check-student/CheckStudent';
 import { SnackbarProvider } from 'notistack';
 import Lecture from './features/lecture-management/Lecture';
+import ViewExportScheduleLecture from './features/lecture-management/ViewExportScheduleLecture';
 function App() {
   const history = useHistory();
   const name = localStorage.getItem(StorageKey.TOKEN);
@@ -27,6 +28,7 @@ function App() {
                   /home/check-vp-hoc-sinh
                   <Route path={'/home/check-vp-hoc-sinh/:keyID'} component={CheckStudent} />
                   <Route path={'/lecture-management'} component={Lecture} />
+                  <Route path={'/view-export-schedule-lecture'} component={ViewExportScheduleLecture} />
                 </Switch>
               </div>
               <Footer />
