@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { login } from './userSlice';
-
+import LinearProgress from '@mui/material/LinearProgress';
 import { unwrapResult } from '@reduxjs/toolkit';
 function Login() {
   const history = useHistory();
@@ -22,6 +22,7 @@ function Login() {
       console.log('action', action);
       const resultAction = await dispatch(action);
       const user = unwrapResult(resultAction);
+
       console.log('user', user);
       history.push('/home');
     } catch (error) {

@@ -3,25 +3,30 @@ import PropTypes from 'prop-types';
 import './Students.css';
 import { color, margin } from '@mui/system';
 import ControlPointIcon from '@mui/icons-material/ControlPoint';
-import studentAPI from '../../api/studentAPI';
+import studentAPI from '../../../api/studentAPI';
 import { useEffect } from 'react';
-import clazzAPI from '../../api/clazzAPI';
+import clazzAPI from '../../../api/clazzAPI';
 import { useForm } from 'react-hook-form';
-import { Input, Select } from './components/Input/Inputs';
 import $ from 'jquery';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import studentFamilyAPI from '../../api/studentFamilyAPI';
+import studentFamilyAPI from '../../../api/studentFamilyAPI';
 import { Redirect, useHistory } from 'react-router-dom';
-Students.propTypes = {};
+import { Input, Select } from '../../../components/students/components/Input/Inputs';
+import { useSnackbar } from 'notistack';
+import { Modal } from 'react-bootstrap';
+StudentManagement.propTypes = {};
 
-function Students(props) {
+function StudentManagement(props) {
   const history = useHistory();
+
+  const { enqueueSnackbar } = useSnackbar();
+  const [show, setShow] = useState(false); //MODAL
+  const [showUpdate, setShowUpdate] = useState(false); //MODAL
 
   const [studentsFirst, setStudentsFirst] = useState([]);
   const [students, setStudents] = useState([]);
   const [clazz, setClazz] = useState([]);
-  const [ismodel, setIsmodel] = useState(false);
 
   const [errors, setErrors] = useState(false);
   console.log('FirtsStudent', students);
@@ -30,7 +35,7 @@ function Students(props) {
   //call api get ALL Student
   useEffect(() => {
     getStudents();
-  }, [ismodel]);
+  }, [show]);
 
   const getStudents = () => {
     studentAPI.getAll().then((data) => {
@@ -68,6 +73,12 @@ function Students(props) {
   };
 
   //End handel filter Clazz
+
+  const handleClose = () => setShow(false);
+  const handleCloseUpdate = () => setShowUpdate(false);
+  const handleClickAdd = () => {
+    setShow(true);
+  };
 
   //Handel Search nameStudent
 
@@ -135,10 +146,10 @@ function Students(props) {
       };
 
       const responseDataStudent = await studentAPI.add(dataStudent);
-      window.location.reload();
+      setShow(false);
+      enqueueSnackbar('Xử lý thành công', { variant: 'success' });
     } catch (error) {
-      document.getElementById('demo').innerHTML = 'Email must unique';
-      console.log(error);
+      enqueueSnackbar('Email phải duy nhất', { variant: 'error' });
     }
   };
 
@@ -205,92 +216,75 @@ function Students(props) {
         <div className="col-md-3 container ">
           <div className="title-it-select">{nameStudentClickTable}</div>
           <div>
-            <button
-              type="button"
-              className="btn btn-danger addStudentBtn"
-              data-toggle="modal"
-              data-target="#exampleModalCenter"
-            >
+            <button type="button" className="btn btn-danger addStudentBtn" onClick={handleClickAdd}>
               <ControlPointIcon />
             </button>
             {/* Modal */}
-            <div
-              className="modal fade"
-              id="exampleModalCenter"
-              tabIndex={-1}
-              role="dialog"
-              aria-labelledby="exampleModalCenterTitle"
-              aria-hidden="true"
-            >
-              <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
-                <div className="modal-content">
-                  <div className="modal-header">
-                    <h5 className="modal-title" id="exampleModalLongTitle">
-                      THÊM HỌC SINH
-                    </h5>
-                    <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true">×</span>
-                    </button>
-                  </div>
-                  <div className="modal-body">
-                    <div class="container-fluid">
-                      <form onSubmit={handleSubmit(onSubmit)}>
-                        <Input
-                          type="text"
-                          label="Tên học sinh"
-                          name="nameStudent"
-                          register={register}
-                          required
-                          pattern="[A-Za-z]"
-                        />
 
-                        <Input type="date" label="Ngày sinh" name="birthDate" required register={register} />
+            <Modal size="lg" show={show} onHide={handleClose}>
+              <Modal.Header closeButton>
+                <Modal.Title>Thêm Mới</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <div className="modal-body">
+                  <div class="container-fluid">
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                      <Input
+                        type="text"
+                        label="Tên học sinh"
+                        name="nameStudent"
+                        register={register}
+                        required
+                        pattern="[A-Za-z]"
+                      />
 
-                        <Select label="Giới tính" {...register('gender')} />
+                      <Input type="date" label="Ngày sinh" name="birthDate" required register={register} />
 
-                        <Input type="email" label="Email liên hệ" name="email" register={register} required />
+                      <Select label="Giới tính" {...register('gender')} />
 
-                        <Input type="text" label="phone" name="phone" register={register} required />
+                      <Input type="email" label="Email liên hệ" name="email" register={register} required />
 
-                        <Input type="text" label="Địa chỉ" name="address" register={register} required />
+                      <Input type="text" label="phone" name="phone" register={register} required />
 
-                        <Input type="text" label="Họ tên cha" name="fatherName" register={register} required />
+                      <Input type="text" label="Địa chỉ" name="address" register={register} required />
 
-                        <Input type="text" label="Họ tên mẹ" name="motherName" register={register} required />
+                      <Input type="text" label="Họ tên cha" name="fatherName" register={register} required />
 
-                        <Input type="email" label="Email gia đình" name="email1" register={register} required />
-                        <p id="demo" style={{ color: 'red' }}></p>
+                      <Input type="text" label="Họ tên mẹ" name="motherName" register={register} required />
 
-                        <Input type="text" label="Phone gia đình" name="phone1" register={register} required />
+                      <Input type="email" label="Email gia đình" name="email1" register={register} required />
+                      <p id="demo" style={{ color: 'red' }}></p>
 
-                        <div className="form-group">
-                          <label>
-                            <b>Lop</b>
-                          </label>
-                          <select {...register('clazzid')} className="custom-select " required>
-                            <option value="ALL"> Chọn Lớp ALL--</option>
-                            {clazz.map((data) => (
-                              <option value={data.id}> {data.nameClazz}</option>
-                            ))}
-                          </select>
-                        </div>
+                      <Input type="text" label="Phone gia đình" name="phone1" register={register} required />
 
-                        <div className="modal-footer">
-                          <button type="button" className="btn btn-secondary" data-dismiss="modal">
-                            Hủy
-                          </button>
-                          <button type="submit" data-target="#myModal" className="btn btn-primary">
-                            Submit
-                          </button>
+                      <div className="form-group">
+                        <label>
+                          <b>Lop</b>
+                        </label>
+                        <select {...register('clazzid')} className="custom-select " required>
+                          <option value="ALL"> Chọn Lớp ALL--</option>
+                          {clazz.map((data) => (
+                            <option value={data.id}> {data.nameClazz}</option>
+                          ))}
+                        </select>
+                      </div>
 
-                          <input type="reset" className="btn btn-danger" />
-                        </div>
-                      </form>
-                    </div>
+                      <div className="modal-footer">
+                        <button type="button" className="btn btn-secondary" data-dismiss="modal">
+                          Hủy
+                        </button>
+                        <button type="submit" data-target="#myModal" className="btn btn-primary">
+                          Submit
+                        </button>
+
+                        <input type="reset" className="btn btn-danger" />
+                      </div>
+                    </form>
                   </div>
                 </div>
-              </div>
-            </div>
+              </Modal.Body>
+              <Modal.Footer></Modal.Footer>
+            </Modal>
           </div>
         </div>
       </div>
@@ -298,4 +292,4 @@ function Students(props) {
   );
 }
 
-export default Students;
+export default StudentManagement;

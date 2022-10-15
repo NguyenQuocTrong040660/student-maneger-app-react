@@ -21,6 +21,21 @@ const clazzAPI = {
     const url = `/clazz-teacher/${id}`;
     return axiosClient.post(url);
   },
+
+  add(data) {
+    const url = `/clazz`;
+    return axiosClient.post(url, data);
+  },
+
+  update(id, data) {
+    const url = `/clazz/${id}`;
+    return axiosClient.put(url, data);
+  },
+
+  deleteClazz(id, data) {
+    const url = `/clazz-delete/${id}`;
+    return axiosClient.put(url, data);
+  },
 };
 
 export default clazzAPI;

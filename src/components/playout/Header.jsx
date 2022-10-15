@@ -16,6 +16,7 @@ function Header() {
       enqueueSnackbar('Logout success', { variant: 'success' });
 
       history.push('/login');
+      history.go(0);
     } catch (error) {
       enqueueSnackbar('Logout thất bại!', { variant: 'error' });
     }

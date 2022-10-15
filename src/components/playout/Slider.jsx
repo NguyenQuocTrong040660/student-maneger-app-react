@@ -1,10 +1,56 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { Link, useHistory } from 'react-router-dom';
 import StorageKey from '../../constant/storage-key';
+import userApi from '../../api/userApi';
+import { useSnackbar } from 'notistack';
+Slider.propTypes = {};
 
-function Slider() {
+function Slider(props) {
+  const { enqueueSnackbar } = useSnackbar();
   const user = JSON.parse(localStorage.getItem(StorageKey.USER));
   const id = user.id;
+
+  const history = useHistory();
+  const CheckRoleAdmin = async () => {
+    try {
+      const check = await userApi.checkRoleAdmin();
+      history.push('/admin/clazzs');
+    } catch (error) {
+      enqueueSnackbar('Chức năng dành cho Admin!', { variant: 'error' });
+      history.push('/home/');
+    }
+  };
+
+  const CheckRoleAdminTeacher = async () => {
+    try {
+      const check = await userApi.checkRoleAdmin();
+      history.push('/admin/teachers');
+    } catch (error) {
+      enqueueSnackbar('Chức năng dành cho Admin!', { variant: 'error' });
+      history.push('/home/');
+    }
+  };
+
+  const CheckRoleAdminStudent = async () => {
+    try {
+      const check = await userApi.checkRoleAdmin();
+      history.push('/admin/students');
+    } catch (error) {
+      enqueueSnackbar('Chức năng dành cho Admin!', { variant: 'error' });
+      history.push('/home/');
+    }
+  };
+
+  const CheckRoleAdminClazzTeacher = async () => {
+    try {
+      const check = await userApi.checkRoleAdmin();
+      history.push('/admin/clazzs-teachers-roles');
+    } catch (error) {
+      enqueueSnackbar('Chức năng dành cho Admin!', { variant: 'error' });
+      history.push('/home/');
+    }
+  };
 
   return (
     <>
@@ -80,104 +126,55 @@ function Slider() {
               <Link to={`/home/check-vp-hoc-sinh/${id}`} className="collapse-item">
                 Check VP Học Sinh
               </Link>
-              <Link to="/lecture-management" className="collapse-item">
+              <Link to="/home/lecture-management" className="collapse-item">
                 Quản Lý Báo Giảng
               </Link>
-              <a className="collapse-item" href="cards.html"></a>
+              <Link to="/home/mark-management" className="collapse-item">
+                Quản Lý Điểm
+              </Link>
             </div>
           </div>
         </li>
         {/*Chức Năng End */}
-        <li className="nav-item">
-          <Link
-            className="nav-link collapsed"
-            to={'/home'}
-            data-toggle="collapse"
-            data-target="#collapseUtilities"
-            aria-expanded="true"
-            aria-controls="collapseUtilities"
-          >
-            <i className="fas fa-fw fa-wrench" />
-            <span>Utilities</span>
-          </Link>
-          <div
-            id="collapseUtilities"
-            className="collapse"
-            aria-labelledby="headingUtilities"
-            data-parent="#accordionSidebar"
-          >
-            <div className="bg-white py-2 collapse-inner rounded">
-              <h6 className="collapse-header">Custom Utilities:</h6>
-              <a className="collapse-item" href="utilities-color.html">
-                Colors
-              </a>
-              <a className="collapse-item" href="utilities-border.html">
-                Borders
-              </a>
-              <a className="collapse-item" href="utilities-animation.html">
-                Animations
-              </a>
-              <a className="collapse-item" href="utilities-other.html">
-                Other
-              </a>
-            </div>
-          </div>
-        </li>
-        {/* Divider */}
+
         <hr className="sidebar-divider" />
         {/* Heading */}
-        <div className="sidebar-heading">Addons</div>
-        {/* Nav Item - Pages Collapse Menu */}
-        <li className="nav-item">
-          <Link
-            className="nav-link collapsed"
-            to={'/home'}
-            data-toggle="collapse"
-            data-target="#collapsePages"
-            aria-expanded="true"
-            aria-controls="collapsePages"
-          >
-            <i className="fas fa-fw fa-folder" />
-            <span>Pages</span>
-          </Link>
-          <div id="collapsePages" className="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
-            <div className="bg-white py-2 collapse-inner rounded">
-              <h6 className="collapse-header">Login Screens:</h6>
-              <a className="collapse-item" href="login.html">
-                Login
-              </a>
-              <a className="collapse-item" href="register.html">
-                Register
-              </a>
-              <a className="collapse-item" href="forgot-password.html">
-                Forgot Password
-              </a>
-              <div className="collapse-divider" />
-              <h6 className="collapse-header">Other Pages:</h6>
-              <a className="collapse-item" href="404.html">
-                404 Page
-              </a>
-              <a className="collapse-item" href="blank.html">
-                Blank Page
-              </a>
-            </div>
-          </div>
-        </li>
-        {/* Nav Item - Charts */}
-        <li className="nav-item">
-          <a className="nav-link" href="charts.html">
-            <i className="fas fa-fw fa-chart-area" />
-            <span>Charts</span>
-          </a>
-        </li>
-        {/* Nav Item - Tables */}
-        <li className="nav-item">
-          <a className="nav-link" href="tables.html">
-            <i className="fas fa-fw fa-table" />
-            <span>Tables</span>
-          </a>
-        </li>
-        {/* Divider */}
+        <div className="" style={{ border: '1px solid white' }}>
+          Chức năng quản trị
+          {/* Nav Item - ADMIN */}
+          <li className="nav-item">
+            <Link className="nav-link" to="#">
+              <i className="fas fa-regular fa-graduation-cap" />
+              <span onClick={CheckRoleAdmin}>QUẢN LÝ LỚP HỌC</span>
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link className="nav-link" to="#">
+              <i className="fas fa-regular fa-graduation-cap" />
+              <span onClick={CheckRoleAdminTeacher}>QUẢN LÝ GIÁO VIÊN</span>
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link className="nav-link" to="#">
+              <i className="fas fa-fw fa-chart-area" />
+              <span onClick={CheckRoleAdminStudent}>QUẢN LÝ HỌC SINH</span>
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link className="nav-link" to="#">
+              <i className="fas fa-fw fa-chart-area" />
+              <span onClick={CheckRoleAdminClazzTeacher}>QUẢN LÝ PHỤ TRÁCH</span>
+            </Link>
+          </li>
+          {/* Nav Item - Tables */}
+          <li className="nav-item">
+            <a className="nav-link" href="tables.html">
+              <i className="fas fa-fw fa-table" />
+              <span>Tables</span>
+            </a>
+          </li>
+          {/* Divider */}
+        </div>
         <hr className="sidebar-divider d-none d-md-block" />
         {/* Sidebar Toggler (Sidebar) */}
         <div className="text-center d-none d-md-inline">

@@ -5,6 +5,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import { ControlPoint } from '@material-ui/icons';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useEffect } from 'react';
 import datesAPI from '../../api/datesAPI';
 import './Lecture.css';
@@ -27,7 +28,10 @@ import FileSaver, { saveAs } from 'file-saver';
 import { useDownloadExcel } from 'react-export-table-to-excel';
 import { useDispatch, useSelector } from 'react-redux';
 import { addScheduleReducer } from '../../reducers/scheduleReducer';
-import { useHistory } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
+import ReportProblemIcon from '@mui/icons-material/ReportProblem';
+import LectureDetails from './LectureDetails';
+import scheduleEvalueAPI from '../../api/scheduleEvalueAPI';
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -480,6 +484,27 @@ function Lecture(props) {
   console.log('REDUX USER', usersss, scheduleExport);
   console.log('REDUX scheduleExport', scheduleExport);
 
+  //Handle Delete Item in Lecture
+  //Muon xoa Thi Ngay hien tai phai truoc hay hom do
+  const handleDeleteSchedule = async (e) => {
+    const curentDate = today; //false
+    const lectureDateStart = moment(e.dateStart).format('yyyy-MM-DD'); //false
+    var bool1 = moment(curentDate).isBefore(lectureDateStart); //false
+
+    try {
+      const rs = await scheduleAPI.deleteSchedule(e.id);
+      enqueueSnackbar('Xoá thành công', { variant: 'success' });
+    } catch (error) {}
+
+    //
+    // if (bool1 === true) {
+
+    // } else {
+    //  enqueueSnackbar(`Xóa phải thực hiện trước ngày ${lectureDateStart} !`, { variant: 'error' });
+    // }
+    console.log('handleDeleteSchedule', lectureDateStart, curentDate, bool1, e);
+  };
+
   /*
   const { onDownload } = useDownloadExcel({
     currentTableRef: tableRef.current,
@@ -732,7 +757,13 @@ function Lecture(props) {
                 <tbody>
                   {resSchedule?.map((item, index) => (
                     <tr key={item.id}>
-                      <td>Check</td>
+                      <td>
+                        <span>
+                          <Link to={`/home/lecture-management/${item.id}`}>
+                            <ReportProblemIcon style={item.status ? { color: '#FF9900' } : { color: 'green' }} />
+                          </Link>
+                        </span>
+                      </td>
                       <td>{item.subjectContent}</td>
                       <td>{item.clazz.nameClazz}</td>
                       <td>{item.subject.subjectName}</td>
@@ -744,7 +775,23 @@ function Lecture(props) {
                       <td>{item.lession}</td>
                       <td>
                         <span onClick={(e) => handleEditSchedule(item)}>
-                          <SettingsIcon style={{ color: 'red' }} />
+                          <SettingsIcon style={{ color: '#FF9900' }} />
+                        </span>
+
+                        <span
+                          onClick={(e) => {
+                            if (
+                              window.confirm(
+                                `Bạn muốn xóa lịch dạy môn ${item?.subject?.subjectName} Ngày ${moment(
+                                  item.dateStart
+                                ).format('MM/DD')}  ?`
+                              )
+                            ) {
+                              handleDeleteSchedule(item);
+                            }
+                          }}
+                        >
+                          <DeleteIcon style={{ color: 'red' }} />
                         </span>
                       </td>
                     </tr>

@@ -21,6 +21,24 @@ const scheduleAPI = {
     const url = `/schedule-update/${id}`;
     return axiosClient.put(url, data);
   },
+
+  //@DeleteMapping("/schedule/{id}")
+  deleteSchedule(id) {
+    const url = `/schedule/${id}`;
+    return axiosClient.delete(url);
+  },
+
+  //item
+  getSchedule(id) {
+    const url = `/schedule/${id}`;
+    return axiosClient.get(url);
+  },
+
+  //update to active checked
+  updateStatustActiveChecked(id) {
+    const url = `schedule-update-status-false/${id}`;
+    return axiosClient.patch(url);
+  },
 };
 
 export default scheduleAPI;

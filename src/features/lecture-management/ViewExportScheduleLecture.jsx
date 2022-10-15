@@ -48,7 +48,7 @@ function ViewExportScheduleLecture(props) {
       <h3>VIEW TABLE EXCEL</h3>
       <button onClick={onDownload}> Export excel </button>
 
-      <table className="table table-bordered" ref={tableRef}>
+      <table className="table" ref={tableRef}>
         <thead style={{ textAlign: 'center' }}>
           <tr>
             <th colSpan={9} scope="col">

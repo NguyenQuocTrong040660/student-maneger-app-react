@@ -20,13 +20,12 @@ export const login = createAsyncThunk('users/login', async (payload) => {
   //call Api
   const data = await userApi.login(payload);
   console.log(data);
+
   // save data local stroge
   //Store Token
   localStorage.setItem(StorageKey.TOKEN, data.data.token);
   //
   localStorage.setItem(StorageKey.USER, JSON.stringify(data.data));
-
-  //push den url home
 
   //return user data
   return data.data;

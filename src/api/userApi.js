@@ -11,6 +11,15 @@ const userApi = {
     const url = 'auth/login';
     return axiosClient.post(url, data);
   },
+
+  getUser(id) {
+    const url = `/teacher/${id}`;
+    return axiosClient.get(url);
+  },
+  checkRoleAdmin(data) {
+    const url = '/checkRoleAmin';
+    return axiosClient.get(url, { data });
+  },
 };
 
 export default userApi;
