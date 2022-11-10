@@ -39,6 +39,12 @@ const scheduleAPI = {
     const url = `schedule-update-status-false/${id}`;
     return axiosClient.patch(url);
   },
+
+  //get ALL SDB
+  reportSDB(week, clazz) {
+    const url = `/get-all-sdb/${week}/${clazz}`;
+    return axiosClient.get(url);
+  },
 };
 
 export default scheduleAPI;

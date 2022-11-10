@@ -17,6 +17,7 @@ import StorageKey from '../../constant/storage-key';
 import subjectAPI from '../../api/subjectAPI';
 import Button from 'react-bootstrap/Button';
 import { Form, Modal, ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import * as ExcelJS from 'exceljs';
 import AddIcon from '@mui/icons-material/Add';
 import { useForm } from 'react-hook-form';
@@ -95,6 +96,7 @@ function Lecture(props) {
   //Model
   const [show, setShow] = useState(false);
   const [showUpdate, setshowUpdate] = useState(false);
+  const [isLoad, setIsLoad] = useState(false);
 
   //Get Now day
   var today = new Date();
@@ -165,7 +167,7 @@ function Lecture(props) {
   //Call API Schedule By Week
   useEffect(() => {
     getSchedulesByWeek();
-  }, [weekSelect, showUpdate]);
+  }, [weekSelect, showUpdate, isLoad]);
 
   const getSchedulesByWeek = async () => {
     try {
@@ -180,6 +182,7 @@ function Lecture(props) {
   //END Call API Schedule By Week
 
   console.log(dates);
+  console.log('DATE sELECT', dateSelect);
   console.log('WEEK', weekSelect);
   console.log('DATESSSS', dates);
   console.log('CLAZZ', clazz);
@@ -233,8 +236,9 @@ function Lecture(props) {
   const handleChangeSubject = (event) => {
     setSubjectSlect(event.target.value);
     const data = event.target.value;
-    if (data === '' && clazzSelect === '') {
-      setResSchedule(resScheduleFirst);
+    if (data.id == 12 && clazzSelect !== '') {
+      const subjectFilter = resScheduleFirst.filter((item) => item.clazz.id === clazzSelect.id);
+      setResSchedule([...subjectFilter]);
     } else if (data === '' && teacherSelect !== '') {
       const subjectFilter = resScheduleFirst.filter((item) => item.idTeacher === teacherSelect.id);
       setResSchedule([...subjectFilter]);
@@ -280,24 +284,20 @@ function Lecture(props) {
     setDateSelect(item);
     setIsButtonDate(index);
     const data = item.id;
-    if (data === '') {
+    if (data === '' && clazzSelect === '' && subjectSlect === '') {
       setResSchedule(resScheduleFirst);
-    } else if (data !== '' && teacherSelect !== '') {
+    } else if (data !== '' && clazzSelect !== '' && subjectSlect === '') {
       const subjectFilter = resScheduleFirst.filter(
-        (item) => item.idTeacher === teacherSelect.id && item.dates.id === data
+        (item) => item.dates.id === data && item.clazz.id === clazzSelect.id
       );
       setResSchedule([...subjectFilter]);
-    } else if (data !== '') {
+    } else if (data !== '' && clazzSelect !== '' && subjectSlect !== '') {
+      const subjectFilter = resScheduleFirst.filter(
+        (item) => item.dates.id === data && item.clazz.id === clazzSelect.id && item.subject.id === subjectSlect.id
+      );
+      setResSchedule([...subjectFilter]);
+    } else {
       const subjectFilter = resScheduleFirst.filter((item) => item.dates.id === data);
-      setResSchedule([...subjectFilter]);
-    } else if (data !== '' && clazzSelect !== '' && teacherSelect !== '' && subjectSlect !== '') {
-      const subjectFilter = resScheduleFirst.filter(
-        (item) =>
-          item.subject.id === subjectSlect.id &&
-          item.clazz.id === clazzSelect.id &&
-          item.idTeacher === teacherSelect.id &&
-          item.dates.id === data
-      );
       setResSchedule([...subjectFilter]);
     }
   };
@@ -308,41 +308,68 @@ function Lecture(props) {
     setLession([{ lession: 1 }, { lession: 2 }, { lession: 3 }, { lession: 4 }, { lession: 5 }]);
     setIsButton('Sang');
 
-    if (clazzSelect === '' && subjectSlect === '' && teacherSelect === '') {
-      const SANG = resScheduleFirst.filter((item) => item.lession < 6);
-      setResSchedule([...SANG]);
-    } else if (clazzSelect !== '') {
-      const SANG = resScheduleFirst.filter((item) => item.lession < 6 && item.clazz.id === clazzSelect.id);
-      setResSchedule([...SANG]);
-    } else if (clazzSelect !== '' && subjectSlect !== '' && teacherSelect !== '') {
+    if (clazzSelect === '' && dateSelect === '' && subjectSlect == '') {
+      const CHIEU = resScheduleFirst.filter((item) => item.lession < 6);
+      setResSchedule([...CHIEU]);
+    } else if (clazzSelect !== '' && subjectSlect !== '' && dateSelect !== '' && teacherSelect !== '') {
+      const subjectFilter = resScheduleFirst.filter(
+        (item) =>
+          item.lession < 6 &&
+          item.clazz.id == clazzSelect.id &&
+          item.subject.id == subjectSlect.id &&
+          item.dates.id == dateSelect.id &&
+          item.idTeacher == teacherSelect.id
+      );
+      setResSchedule([...subjectFilter]);
+    } else if (clazzSelect !== '' && subjectSlect !== '' && dateSelect !== '') {
       const subjectFilter = resScheduleFirst.filter(
         (item) =>
           item.lession < 6 &&
           item.clazz.id === clazzSelect.id &&
           item.subject.id === subjectSlect.id &&
-          item.idTeacher === teacherSelect.id
+          item.dates.id === dateSelect.id
+      );
+      setResSchedule([...subjectFilter]);
+    } else if (clazzSelect !== '' && dateSelect !== '') {
+      const subjectFilter = resScheduleFirst.filter(
+        (item) => item.lession < 6 && item.clazz.id === clazzSelect.id && item.dates.id === dateSelect.id
       );
       setResSchedule([...subjectFilter]);
     }
   };
 
+  const dataToFilter = [clazzSelect, subjectSlect, teacherSelect, dateSelect];
+  console.log(dataToFilter);
+
   const handelSessionC = () => {
     setLession([{ lession: 6 }, { lession: 7 }, { lession: 8 }, { lession: 9 }, { lession: 10 }]);
     setIsButton('Chieu');
 
-    if (clazzSelect === '' && subjectSlect === '' && teacherSelect === '') {
+    if (clazzSelect === '' && dateSelect === '') {
       const CHIEU = resScheduleFirst.filter((item) => item.lession > 5);
       setResSchedule([...CHIEU]);
-    } else if (clazzSelect !== '') {
-      const CHIEU = resScheduleFirst.filter((item) => item.lession > 5 && item.clazz.id === clazzSelect.id);
-      setResSchedule([...CHIEU]);
-    } else if (clazzSelect !== '' && subjectSlect !== '' && teacherSelect !== '') {
+    } else if (clazzSelect !== '' && subjectSlect !== '' && dateSelect !== '' && teacherSelect !== '') {
       const subjectFilter = resScheduleFirst.filter(
         (item) =>
           item.lession > 5 &&
           item.clazz.id === clazzSelect.id &&
           item.subject.id === subjectSlect.id &&
+          item.dates.id === dateSelect.id &&
           item.idTeacher === teacherSelect.id
+      );
+      setResSchedule([...subjectFilter]);
+    } else if (clazzSelect !== '' && subjectSlect !== '' && dateSelect !== '') {
+      const subjectFilter = resScheduleFirst.filter(
+        (item) =>
+          item.lession > 5 &&
+          item.clazz.id === clazzSelect.id &&
+          item.subject.id === subjectSlect.id &&
+          item.dates.id === dateSelect.id
+      );
+      setResSchedule([...subjectFilter]);
+    } else if (clazzSelect !== '' && dateSelect !== '') {
+      const subjectFilter = resScheduleFirst.filter(
+        (item) => item.lession > 5 && item.clazz.id === clazzSelect.id && item.dates.id === dateSelect.id
       );
       setResSchedule([...subjectFilter]);
     }
@@ -367,11 +394,15 @@ function Lecture(props) {
   const handleCloseUpdate = () => setshowUpdate(false);
 
   const handleShow = (e) => {
+    const curentDate = today; //Ngày hiện tại
+    const lectureDateStart = moment(dateSelect.entryDate).format('yyyy-MM-DD'); //Ngày chọn
+    var bool1 = moment(curentDate).isBefore(lectureDateStart); //true - false
+
     if (lession === undefined) {
       enqueueSnackbar('Chọn buổi trước!', { variant: 'error' });
       setShow(false);
     } else if (dateSelect === '') {
-      enqueueSnackbar('Chọn ngày trước!', { variant: 'error' });
+      enqueueSnackbar('Chọn ngày phù hợp!', { variant: 'error' });
       setShow(false);
     } else if (subjectSlect === '') {
       enqueueSnackbar('Chọn môn trước!', { variant: 'error' });
@@ -381,6 +412,16 @@ function Lecture(props) {
       setShow(false);
     } else if (teacherSelect === '') {
       enqueueSnackbar('Chọn giáo viên trước!', { variant: 'error' });
+      setShow(false);
+    } else if (
+      clazzSelect !== '' &&
+      subjectSlect !== '' &&
+      dateSelect !== '' &&
+      bool1 === false &&
+      lession !== undefined &&
+      teacherSelect !== ''
+    ) {
+      enqueueSnackbar('Chọn ngày phù hợp!', { variant: 'error' });
       setShow(false);
     } else if (
       clazzSelect !== '' &&
@@ -401,6 +442,8 @@ function Lecture(props) {
   };
 
   //form Modal
+  //Add Lecture (Thêm báo giảng)
+  // Requierd: Phải thực hiện trước ngày báo giảng
   const onSubmit = async (data) => {
     try {
       const dataShedule = {
@@ -428,7 +471,8 @@ function Lecture(props) {
     }
   };
 
-  //Update
+  // BEGIN Update(Cập nhật lịch báo giảng)
+  //Required: Phải thực hiện trước ngày báo giảng(giảng dạy)
   const [scheduleUpdate, setScheduleUpdate] = useState();
   const handleEditSchedule = (item) => {
     setScheduleUpdate(item);
@@ -440,15 +484,24 @@ function Lecture(props) {
   };
 
   const handelSubmit = async (event) => {
-    try {
-      const res = await scheduleAPI.updateSchedule(scheduleUpdate.id, scheduleUpdate);
-      console.log(res.data);
-      setshowUpdate(false);
-      enqueueSnackbar('Cập nhật thành công!', { variant: 'success' });
-    } catch (e) {
-      enqueueSnackbar('Không thành công!', { variant: 'error' });
+    const curentDate = today; //false
+    const lectureDateStart = moment(scheduleUpdate.dateStart).format('yyyy-MM-DD'); //false
+    var bool1 = moment(curentDate).isBefore(lectureDateStart); //false
+
+    if (bool1 === true) {
+      try {
+        const res = await scheduleAPI.updateSchedule(scheduleUpdate.id, scheduleUpdate);
+        console.log(res.data);
+        setshowUpdate(false);
+        enqueueSnackbar('Cập nhật thành công!', { variant: 'success' });
+      } catch (e) {
+        enqueueSnackbar('Không thành công!', { variant: 'error' });
+      }
+    } else {
+      enqueueSnackbar(`Cập nhật phải thực hiện trước ngày ${lectureDateStart} !`, { variant: 'error' });
     }
   };
+  //END Update(Cập nhật lịch báo giảng)
 
   //Handel Export Lecture
   const headers = [
@@ -484,176 +537,62 @@ function Lecture(props) {
   console.log('REDUX USER', usersss, scheduleExport);
   console.log('REDUX scheduleExport', scheduleExport);
 
-  //Handle Delete Item in Lecture
-  //Muon xoa Thi Ngay hien tai phai truoc hay hom do
+  //Handle Delete (Xóa báo giảng)
+  // Yêu cầu: Phải xóa trước ngày (startdate-dạy)
   const handleDeleteSchedule = async (e) => {
     const curentDate = today; //false
     const lectureDateStart = moment(e.dateStart).format('yyyy-MM-DD'); //false
     var bool1 = moment(curentDate).isBefore(lectureDateStart); //false
+    if (bool1 === true) {
+      try {
+        const rs = await scheduleAPI.deleteSchedule(e.id);
+        enqueueSnackbar('Xoá thành công', { variant: 'success' });
+        setIsLoad(!isLoad);
+      } catch (error) {
+        enqueueSnackbar('Xoá Không thành công', { variant: 'error' });
+      }
+    } else {
+      enqueueSnackbar(`Xóa phải thực hiện trước ngày ${lectureDateStart} !`, { variant: 'error' });
+    }
+  };
+  //End Handel  Delete (Xóa báo giảng)
 
+  //handle SDB
+  const onClickExportSDB = () => {
     try {
-      const rs = await scheduleAPI.deleteSchedule(e.id);
-      enqueueSnackbar('Xoá thành công', { variant: 'success' });
-    } catch (error) {}
-
-    //
-    // if (bool1 === true) {
-
-    // } else {
-    //  enqueueSnackbar(`Xóa phải thực hiện trước ngày ${lectureDateStart} !`, { variant: 'error' });
-    // }
-    console.log('handleDeleteSchedule', lectureDateStart, curentDate, bool1, e);
+      if (clazzSelect === '') {
+        enqueueSnackbar('Click chọn lớp!', { variant: 'error' });
+      } else if (clazzSelect !== '' && weekSelect !== undefined) {
+        history.push(`/view-report-sdb/${weekSelect}/${clazzSelect.id}`);
+      }
+    } catch (error) {
+      enqueueSnackbar('Click chọn lớp va tuần !!', { variant: 'error' });
+    }
   };
-
-  /*
-  const { onDownload } = useDownloadExcel({
-    currentTableRef: tableRef.current,
-    filename: 'Users table',
-    sheet: 'Users',
-  });
-  /* async function exportToExcel(fileName, sheetName, report) {
-    if (report !== '') {
-      const myHeader = [
-        {label:'Thu,Ngay,Thang',key:'dateStart'},
-        {label:'Buổi',key:'lession'},
-        {lable:'Môn',key:'subjectName'},
-        {lable:'Tiết TKB',key:'lession'},
-        {lable:'Lớp',key:'subjectName'},
-        {lable:'Tiết PPCT',key:'lessionPPCT'},
-        {lable:'Nội dung dạy',key:'subjectContent'},
-        {lable:'Ghi chú',key:'note'},
-      ];
-      exportToExcelPro('USer', 'User', report, myHeader, [
-        { width: 20 },
-        { width: 15 },
-        { width: 15 },
-        { width: 15 },
-        { width: 15 },
-        { width: 15 },
-        { width: 35 },
-        { width: 35 },
-      ]);
-      return;
-    }
-    const wb = new ExcelJS.Workbook();
-    const ws = wb.addWorksheet(sheetName);
-    const header = Object.keys[resSchedule[0]];
-    console.log(header);
-    ws.addRow(header);
-    resSchedule.forEach((rowData) => {
-      console.log('rowData', rowData);
-      let row = ws.addRow(Object.values(rowData));
-   
-    });
-    const buf = await wb.xlsx.writeBuffer();
-    const blob = new Blob([buf], { type: 'text/plain;charset=utf-8' });
-    FileSaver.saveAs(blob, `${fileName}.xlsx`);
-    // FileSaver.saveAs(new Blob[buf](), `${fileName}.xlsx`);
-  }
-
-  const exportToExcelPro = async (fileName, sheetName, report, myHeader, widths) => {
-    if (!resSchedule || resSchedule.length === 0) {
-      return;
-    }
-    console.log('exportToExcel', resSchedule);
-    const wb = new ExcelJS.Workbook();
-    const ws = wb.addWorksheet(sheetName);
-    const colums = myHeader?.length;
-
-    const title = {
-      border: true,
-      money: false,
-      height: 100,
-      font: { size: 30, bold: false },
-      alignment: { horizontal: 'center', vertical: 'middle' },
-      fill: {
-        type: 'pattern',
-        pattern: 'solid',
-      },
-    };
-
-    const header = {
-      border: true,
-      money: false,
-      height: 70,
-      font: { size: 15, bold: false },
-      alignment: { horizontal: 'center', vertical: 'middle' },
-      fill: {
-        type: 'pattern',
-        pattern: 'solid',
-      },
-    };
-
-    const data = {
-      border: true,
-      money: true,
-      height: 0,
-      font: { size: 12, bold: false },
-      alignment: null,
-      fill: null,
-    };
-
-    if (widths && widths.length > 0) {
-      ws.columns = widths;
-    }
-
-    let row1 = addRow(ws, [`Môn giảng dạy:${subjectSlect?.subjectName} ${clazzSelect?.nameClazz}`], header); //Tieu De ABC HANG THANG
-    mergeCells(ws, row1, 1, colums); //Group cell cot =>row
-    let row2 = addRow(ws, [`Giáo viên giảng dạy:${teacherSelect?.teacherName} ${clazzSelect?.nameClazz}`], header); //Tieu De ABC HANG THANG
-    mergeCells(ws, row2, 1, colums); //Group cell cot =>row
-    let row3 = addRow(ws, ['LỊCH BÁO GIẢNG'], title); //Tieu De ABC HANG THANG
-    mergeCells(ws, row3, 1, colums); //Group cell cot =>row
-
-    addRow(ws, myHeader, header);
-    resSchedule.forEach((r, index) => {
-
-      addRow(ws, Object.values(r), data);
-    });
-
-    const buf = await wb.xlsx.writeBuffer();
-    const blob = new Blob([buf], { type: 'text/plain;charset=utf-8' });
-    FileSaver.saveAs(blob, `${fileName}.xlsx`);
-    // FileSaver.saveAs(new Blob[buf](), `${fileName}.xlsx`);
-  };
-
-  function addRow(ws, data, section) {
-    const borderStyles = {
-      top: { style: 'thin' },
-      left: { style: 'thin' },
-      bottom: { style: 'thin' },
-      right: { style: 'thin' },
-    };
-    const row = ws.addRow(data);
-    console.log('AddRow', section, data);
-    row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-      if (section?.border) {
-        cell.border = borderStyles;
-      }
-      if (section?.alignment) {
-        cell.alignment = section.alignment;
-      } else {
-        cell.alignment = { vertical: 'middle' };
-      }
-      if (section?.font) {
-        cell.font = section.font;
-      }
-      if (section?.fill) {
-        cell.fill = section.fill;
-      }
-    });
-    if (section?.height > 0) {
-      row.fill = section.height;
-    }
-    return row;
-  }
-
-  function mergeCells(ws, row, from, to) {
-    console.log(mergeCells, row, from, to, row.getCell(from)._address, row.getCell(to)._address);
-    ws.mergeCells(`${row.getCell(from)._address}:${row.getCell(to)._address}:`);
-  }
-*/
 
   //End Handel Export Lecture
+
+  function renderSwitch(param) {
+    switch (param) {
+      case 'Monday':
+        return 'Thu 2';
+      case 'Tuesday':
+        return 'Thu 3';
+      case 'Wednesday':
+        return 'Thu 4';
+      case 'Thursday':
+        return 'Thu 5';
+      case 'Friday':
+        return 'Thu 6';
+      case 'Saturday':
+        return 'Thu 7';
+      case 'Sunday':
+        return 'CN';
+      default:
+        return '';
+    }
+  }
+
   return (
     <>
       <div className="row container">
@@ -687,7 +626,6 @@ function Lecture(props) {
                   value={clazzSelect}
                   onChange={handleChangeClazz}
                 >
-                  <MenuItem value="">Tất Cả</MenuItem>
                   {clazz?.map((item, index) => (
                     <MenuItem key={index} value={item.clazz}>
                       {item.clazz.nameClazz}
@@ -706,7 +644,6 @@ function Lecture(props) {
                   value={subjectSlect}
                   onChange={handleChangeSubject}
                 >
-                  <MenuItem value="">Tất Cả</MenuItem>
                   {subject?.map((item, index) => (
                     <MenuItem key={index} value={item}>
                       {item.subjectName}
@@ -739,7 +676,7 @@ function Lecture(props) {
           {/* Begin Table */}
           <div class="card shadow mb-4">
             <div class="card-header py-3">
-              <h6 class="m-0 font-weight-bold text-primary">DANH SÁCH BÁO GIẢNG </h6>
+              <h6 class="m-0 font-weight-bold text-primary">DANH SÁCH BÁO GIẢNG {resSchedule.length}</h6>
             </div>
             <div className="table-responsive scrol-Table">
               <table className="table table-hover" id="dataTable" width="100%" cellspacing="0" ref={tableRef}>
@@ -760,7 +697,7 @@ function Lecture(props) {
                       <td>
                         <span>
                           <Link to={`/home/lecture-management/${item.id}`}>
-                            <ReportProblemIcon style={item.status ? { color: '#FF9900' } : { color: 'green' }} />
+                            <CheckCircleIcon style={item.status ? { color: '#FF9900' } : { color: 'green' }} />
                           </Link>
                         </span>
                       </td>
@@ -813,23 +750,32 @@ function Lecture(props) {
               // onClick={onDownload}
               onClick={onClickExport}
               style={{ borderRadius: '45px', marginRight: '5px' }}
+              className={' btn btn-outline-secondary'}
             >
               Xuất Báo Giảng
             </Button>
 
-            <Button variant="contained" style={{ borderRadius: '45px' }} color="error">
+            <Button
+              onClick={onClickExportSDB}
+              className={' btn btn-outline-secondary'}
+              variant="contained"
+              style={{ borderRadius: '45px' }}
+              color="error"
+            >
               Xuất Sổ ĐB
             </Button>
           </div>
 
           <br />
           <br />
-          <div className="container-fuild" style={{ width: '100%', height: '200px', backgroundColor: 'white' }}>
+          <div className="container-fuild" style={{ width: '100%', height: '250px', backgroundColor: 'white' }}>
             <h6>Chọn Ngày</h6>
 
             {dates.map((item, index) => (
               <button
-                className={isButtonDate === index ? 'buttonTrue btn' : 'btn'}
+                className={
+                  isButtonDate === index ? 'buttonTrue btn btn-outline-secondary' : 'btn btn-outline-secondary'
+                }
                 key={index}
                 onClick={(e) => {
                   handelClickDate(item, index);
@@ -837,7 +783,7 @@ function Lecture(props) {
                 size="small"
                 style={{ borderRadius: '45px', margin: '5px' }}
               >
-                {item.nameDay} {moment(item.entryDate).format('MM/DD')}
+                {renderSwitch(moment(item?.entryDate).format('dddd'))} {moment(item.entryDate).format('DD/MM')}
               </button>
             ))}
           </div>
@@ -849,14 +795,22 @@ function Lecture(props) {
             <button
               type="button"
               onClick={handelSessionS}
-              className={isButton === 'Sang' ? 'buttonTrue btn col-md-4' : 'btn  col-md-4'}
+              className={
+                isButton === 'Sang'
+                  ? 'buttonTrue btn btn-outline-secondary col-md-4'
+                  : 'btn btn-outline-secondary  col-md-4'
+              }
             >
               Sáng
             </button>
             <button
               type="button"
               onClick={handelSessionC}
-              className={isButton === 'Chieu' ? 'buttonTrue btn col-md-4' : 'btn  col-md-4'}
+              className={
+                isButton === 'Chieu'
+                  ? 'buttonTrue btn btn-outline-secondary col-md-4'
+                  : 'btn btn-outline-secondary  col-md-4'
+              }
             >
               Chiều
             </button>
@@ -864,15 +818,24 @@ function Lecture(props) {
             <button
               type="button"
               onClick={handelSessionAll}
-              className={isButton === 'TatCa' ? 'buttonTrue btn col-md-4' : 'btn  col-md-4'}
+              className={
+                isButton === 'TatCa'
+                  ? 'buttonTrue btn btn-outline-secondary col-md-4'
+                  : 'btn btn-outline-secondary  col-md-4'
+              }
             >
               Tất Cả
             </button>
           </div>
 
           <br />
-          <div style={{ width: '100%', height: 'auto', backgroundColor: 'white' }}>
-            <Button onClick={handleShow} style={{ borderRadius: '45px' }} variant="contained" color="success">
+          <div>
+            <Button
+              onClick={handleShow}
+              style={{ borderRadius: '45px', height: '50px', backgroundColor: 'red' }}
+              variant="contained"
+              color="success"
+            >
               <ControlPoint />
             </Button>
           </div>

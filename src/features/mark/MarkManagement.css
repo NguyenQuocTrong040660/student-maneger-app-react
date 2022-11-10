@@ -1,0 +1,7 @@
+.circle {
+    background: #456BD9;
+    clip-path: circle(50%);
+    height: 100px;
+    width: 100px;
+    color: white;
+  }

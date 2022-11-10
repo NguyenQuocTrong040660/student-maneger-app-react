@@ -61,9 +61,7 @@ function Slider(props) {
           <div className="sidebar-brand-icon rotate-n-15">
             <i className="fas fa-laugh-wink" />
           </div>
-          <div className="sidebar-brand-text mx-3">
-            SB Admin <sup>2</sup>
-          </div>
+          <div className="sidebar-brand-text mx-3">CMS Student Management</div>
         </a>
         {/* Divider */}
         <hr className="sidebar-divider my-0" />
@@ -131,6 +129,30 @@ function Slider(props) {
               </Link>
               <Link to="/home/mark-management" className="collapse-item">
                 Quản Lý Điểm
+              </Link>
+            </div>
+          </div>
+        </li>
+        {/*Chức Năng End */}
+
+        {/*Chức Năng Begin */}
+        <li className="nav-item">
+          <Link
+            className="nav-link collapsed"
+            to={'/home'}
+            data-toggle="collapse"
+            data-target="#collapseTwo2"
+            aria-expanded="true"
+            aria-controls="collapseTwo2"
+          >
+            <i className="fas fa-fw fa-cog" />
+            <span>Báo cáo</span>
+          </Link>
+          <div id="collapseTwo2" className="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+            <div className="bg-white py-2 collapse-inner rounded">
+              <h6 className="collapse-header">Custom Components:</h6>
+              <Link to={`/home/report-offence-detail`} className="collapse-item">
+                Thống kê vi phạm
               </Link>
             </div>
           </div>

@@ -8,6 +8,7 @@ import { useEffect } from 'react';
 import scheduleAPI from '../../api/scheduleAPI';
 import { useSnackbar } from 'notistack';
 import scheduleEvalueAPI from '../../api/scheduleEvalueAPI';
+import moment from 'moment';
 
 LectureDetails.propTypes = {};
 
@@ -18,6 +19,13 @@ function LectureDetails(props) {
   const [schedule, setSchedule] = useState();
 
   const { enqueueSnackbar } = useSnackbar();
+
+  //Get Now day(lấy ngày hệ thống hiện tại trên máy tính)
+  var today = new Date();
+  var dd = String(today.getDate()).padStart(2, '0');
+  var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+  var yyyy = today.getFullYear();
+  today = yyyy + '/' + mm + '/' + dd;
 
   //data
   const [id, setId] = useState('');
@@ -62,40 +70,47 @@ function LectureDetails(props) {
   };
 
   //
-
+  console.log(schedule);
   //handle Submit
   const onSubmit = async () => {
-    try {
-      const data = {
-        id: id,
-        evaluateNote: evaluateNote,
-        mark1: mark1,
-        mark2: mark2,
-        mark3: mark3,
-        homeWork: homeWork,
-        schedule: schedule,
-      };
-      const data1 = {
-        evaluateNote: evaluateNote,
-        mark1: mark1,
-        mark2: mark2,
-        mark3: mark3,
-        homeWork: homeWork,
-        schedule: schedule,
-      };
-      if (stateUpload) {
-        //update
-        const rsupdate = await scheduleEvalueAPI.updatescheduleEvalue(id, data);
-        enqueueSnackbar('Cập nhật Thành công!', { variant: 'success' });
-      } else {
-        //create
-        const rs = await scheduleEvalueAPI.add(data1);
-        setId(rs.data.id);
-        const rses = await scheduleAPI.updateStatustActiveChecked(idLecture);
-        enqueueSnackbar('Đánh giá Thành công!', { variant: 'success' });
+    const curentDate = today; //false
+    const lectureDateStart = moment(schedule?.dateStart).format('yyyy-MM-DD'); //false
+    var bool1 = moment(curentDate).isSame(lectureDateStart); //false
+    if (bool1 === true) {
+      try {
+        const data = {
+          id: id,
+          evaluateNote: evaluateNote,
+          mark1: mark1,
+          mark2: mark2,
+          mark3: mark3,
+          homeWork: homeWork,
+          schedule: schedule,
+        };
+        const data1 = {
+          evaluateNote: evaluateNote,
+          mark1: mark1,
+          mark2: mark2,
+          mark3: mark3,
+          homeWork: homeWork,
+          schedule: schedule,
+        };
+        if (stateUpload) {
+          //update
+          const rsupdate = await scheduleEvalueAPI.updatescheduleEvalue(id, data);
+          enqueueSnackbar('Cập nhật Thành công!', { variant: 'success' });
+        } else {
+          //create
+          const rs = await scheduleEvalueAPI.add(data1);
+          setId(rs.data.id);
+          const rses = await scheduleAPI.updateStatustActiveChecked(idLecture);
+          enqueueSnackbar('Đánh giá Thành công!', { variant: 'success' });
+        }
+      } catch (error) {
+        enqueueSnackbar('Cập nhật không thành công!', { variant: 'error' });
       }
-    } catch (error) {
-      enqueueSnackbar('Cập nhật không thành công!', { variant: 'error' });
+    } else {
+      enqueueSnackbar('Thời gian đánh giá - kết luận không chính xác!', { variant: 'error' });
     }
   };
 

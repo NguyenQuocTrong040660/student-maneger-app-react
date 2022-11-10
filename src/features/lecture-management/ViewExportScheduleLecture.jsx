@@ -52,26 +52,14 @@ function ViewExportScheduleLecture(props) {
         <thead style={{ textAlign: 'center' }}>
           <tr>
             <th colSpan={9} scope="col">
-              Môn giảng dạy: Lịch Sử 11A1
-            </th>
-          </tr>
-          <tr>
-            <th colSpan={9} scope="col">
-              GV giảng dạy: Vũ Văn Vinh
+              LỊCH BÁO GIẢNG
             </th>
           </tr>
 
           <tr>
             <th colSpan={9} scope="col">
-              LỊCH BÁO GIANG
+              TUẦN {resSchedule[0]?.dates.week}
             </th>
-          </tr>
-
-          <tr>
-            <th colSpan={7} scope="col">
-              Tuần 1 (06/09/2021 - 12/09/2021)
-            </th>
-            <th>''</th>
           </tr>
 
           <tr>

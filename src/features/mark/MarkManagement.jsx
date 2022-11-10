@@ -6,7 +6,7 @@ import studentAPI from '../../api/studentAPI';
 import { useEffect } from 'react';
 import clazzAPI from '../../api/clazzAPI';
 import { useForm } from 'react-hook-form';
-import $ from 'jquery';
+import './MarkManagement.css';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import studentFamilyAPI from '../../api/studentFamilyAPI';
@@ -14,6 +14,13 @@ import { Redirect, useHistory } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import subjectAPI from '../../api/subjectAPI';
 import { Button, Modal } from 'react-bootstrap';
+import { Input } from '../../components/students/components/Input/Inputs';
+import markTypeAPI from '../../api/markTypeAPI';
+import markAPI from '../../api/markAPI';
+
+import DeleteIcon from '@mui/icons-material/Delete';
+import StorageKey from '../../constant/storage-key';
+import { isLabelWithInternallyDisabledControl } from '@testing-library/user-event/dist/utils';
 MarkManagement.propTypes = {};
 
 function MarkManagement(props) {
@@ -22,10 +29,15 @@ function MarkManagement(props) {
   const { enqueueSnackbar } = useSnackbar();
   const [studentsFirst, setStudentsFirst] = useState([]);
   const [students, setStudents] = useState([]);
+  const [studentSelect, setStudentSelect] = useState();
   const [clazz, setClazz] = useState([]);
-  const [ismodel, setIsmodel] = useState(false);
+  const [markType, setMarkType] = useState([]);
+  const [mark, setMarks] = useState([]);
 
   const [subject, setSubject] = useState();
+  const [subjectSelect, setSubjectSelect] = useState();
+
+  const [semesterSelect, setSemesterSelect] = useState();
 
   console.log('FirtsStudent', students);
   console.log('FirtsClazz', clazz);
@@ -34,24 +46,16 @@ function MarkManagement(props) {
   const [isloadAPI, setIsloadAPI] = useState(false); //UseEffef
 
   const handleClose = () => setShow(false);
-
+  //MessAge
+  const user = JSON.parse(localStorage.getItem(StorageKey.USER));
   //call api get ALL Student
-  useEffect(() => {
-    getStudents();
-  }, [ismodel]);
 
-  const getStudents = () => {
-    studentAPI.getAll().then((data) => {
-      setStudents(data.data);
-      setStudentsFirst(data.data);
-    });
-  };
   //end call  ALL Student
 
   //Call Api All Subject
   useEffect(() => {
     getSubject();
-  }, []);
+  }, [isloadAPI]);
 
   const getSubject = async () => {
     try {
@@ -68,32 +72,58 @@ function MarkManagement(props) {
 
   //Call API Clazzs and handel filter Clazz
   useEffect(() => {
-    getClazzs();
+    clazzAPI.getClazzByTeacherId(user.id).then((rs) => {
+      setClazz(rs.data);
+    });
+  }, []);
+  console.log(clazz);
+
+  //END
+  //CALL API MarkTypeAPI
+  useEffect(() => {
+    getMarkType();
   }, []);
 
-  const getClazzs = () => {
+  const getMarkType = async () => {
     try {
-      clazzAPI.getAll().then((data) => {
-        setClazz(data.data);
-      });
-    } catch (e) {
-      console.log(e);
+      const rs = await markTypeAPI.getAll();
+      setMarkType(rs.data);
+    } catch (error) {
+      console.log(error);
     }
   };
+  //END CALL API MarkTypeAPI
+
+  //CALL API MARKS
+  useEffect(() => {
+    getMarks();
+  }, [show, isloadAPI]);
+
+  const getMarks = async () => {
+    try {
+      const rs = await markAPI.getAll();
+      setMarks(rs.data);
+    } catch (error) {
+      enqueueSnackbar('Call API Mark that Bai!', { variant: 'error' });
+    }
+  };
+  console.log(mark);
+
+  //END
 
   //Begin handel filter Clazz
-  const handelChangeClazz = (e) => {
+  const handelChangeClazz = async (e) => {
     const data = e.target.value;
     console.log(data);
 
-    if (data === 'ALL') {
-      setStudents(studentsFirst);
-    } else {
-      const clazzFilter = studentsFirst.filter((item) => item.clazz.id == data);
-
-      setStudents([...clazzFilter]);
+    try {
+      const rs = await studentAPI.getStudentByClazz(data);
+      setStudents(rs.data);
+      setStudentsFirst(rs.data);
+      setResMarkDetail();
+    } catch (error) {
+      enqueueSnackbar('Error Call API Student By Clazz!', { variant: 'error' });
     }
-    console.log(students);
   };
 
   //End handel filter Clazz
@@ -121,6 +151,14 @@ function MarkManagement(props) {
     setStudents(resultfilter);
   };
 
+  const handelChangeSubject = (e) => {
+    const data = e.target.value;
+    const subjectData = subject.filter((item) => item.id == data);
+    const objectSubject = Object.assign({}, ...subjectData);
+    setSubjectSelect(objectSubject);
+    setResMarkDetail(); //clear ket qua Diem chi tiet
+  };
+
   //Handel Search nameStudent
 
   //Handel Add student
@@ -128,29 +166,99 @@ function MarkManagement(props) {
   const { register, handleSubmit } = useForm();
 
   //hanleClick Student
+  const [resMarkDetail, setResMarkDetail] = useState([]);
+
   const handelClickStudent = (e) => {
-    console.log(e);
+    try {
+      if (semesterSelect === undefined) {
+        enqueueSnackbar('Click chọn học kỳ!', { variant: 'error' });
+      } else if (subjectSelect === undefined) {
+        enqueueSnackbar('Click chọn môn học!', { variant: 'error' });
+      } else {
+        markAPI.getAllMarkByConditions(subjectSelect.id, semesterSelect, e).then((res) => {
+          setResMarkDetail(res.data);
+        });
+      }
+    } catch (error) {
+      enqueueSnackbar('Errror Click Student!', { variant: 'error' });
+    }
   };
+
+  console.log('resMarkDetail', resMarkDetail);
 
   //handel handelChangeSemester
 
   const handelChangeSemester = (e) => {
-    console.log(e.target.value);
+    setSemesterSelect(e.target.value);
+    setResMarkDetail(); //clear ket qua Diem chi tiet
   };
 
   const handleAddMark = (e) => {
-    console.log('Mark', e);
-    setShow(true);
+    setStudentSelect(e);
+    if (semesterSelect === undefined) {
+      enqueueSnackbar('Click chọn học kỳ!', { variant: 'error' });
+    } else if (subjectSelect === undefined) {
+      enqueueSnackbar('Click chọn môn học!', { variant: 'error' });
+    } else {
+      setShow(true);
+    }
   };
 
-  const onSubmit = (e) => {
-    console.log(e);
+  const onSubmit = async (e) => {
+    try {
+      const dataMarkType = markType.filter((item) => item.id == e.markType);
+      const objectMarkType = Object.assign({}, ...dataMarkType);
+      const data = {
+        subjectId: subjectSelect.id,
+        mark: e.mark,
+        semester: semesterSelect,
+        student: studentSelect,
+        markType: objectMarkType,
+        status: true,
+      };
+      const rs = await markAPI.addMark(data);
+      enqueueSnackbar('Thành công!', { variant: 'success' });
+      const res = await markAPI.getAllMarkByConditions(subjectSelect.id, semesterSelect, rs.data.student.id);
+      setResMarkDetail(res.data);
+      setShow(false);
+    } catch (error) {
+      enqueueSnackbar('Không thành công!', { variant: 'error' });
+    }
+  };
+
+  //handle So luong Diem
+
+  /*Tạo hàm đếm số lần ghi điểm theo môn- học kì - của học sinh đó */
+  const count_element_in_array = (idstudent, subjectId, semesster, mark) => {
+    let count = 0;
+    mark.forEach((element) => {
+      if (element.semester == semesster && element.subjectId == subjectId && element.student.id == idstudent) {
+        count++;
+      }
+    });
+    return count;
+  };
+
+  const handleDeleteMarkDetail = async (e) => {
+    try {
+      const rs = await markAPI.delete(e);
+      const dataFilter = resMarkDetail.filter((item) => item.id !== e); //loai bo ptu vua xoa trong State
+      setResMarkDetail(dataFilter);
+      setIsloadAPI(!isloadAPI);
+      console.log(isloadAPI);
+      enqueueSnackbar('Thành công!', { variant: 'success' });
+    } catch (error) {
+      enqueueSnackbar('Không thành công!', { variant: 'error' });
+    }
   };
 
   return (
     <>
       <div className="row container">
         <div className="col-md-3">
+          <lable>
+            <b>Tìm kiểm theo tên</b>
+          </lable>
           <input
             className="form-control"
             type="text"
@@ -159,25 +267,34 @@ function MarkManagement(props) {
           />
         </div>
         <div className="col-md-3">
+          <lable>
+            <b>Học Kỳ</b>
+          </lable>
           <select onChange={handelChangeSemester} className="custom-select " required>
-            <option value="ALL">Học kỳ All--</option>
+            <option>All</option>
             <option value="1">Học kỳ 1</option>
             <option value="2">Học kỳ 2</option>
           </select>
         </div>
 
         <div className="col-md-3">
+          <lable>
+            <b>Lớp</b>
+          </lable>
           <select onChange={handelChangeClazz} className="custom-select " required>
-            <option value="ALL"> Chọn Lớp All--</option>
-            {clazz.map((data) => (
-              <option value={data.id}> {data.nameClazz}</option>
+            <option>All</option>
+            {clazz?.map((data) => (
+              <option value={data?.clazz.id}> {data?.clazz.nameClazz}</option>
             ))}
           </select>
         </div>
 
         <div className="col-md-3">
-          <select onChange={handelChangeClazz} className="custom-select " required>
-            <option value="ALL"> Chọn Môn All--</option>
+          <lable>
+            <b>Môn học</b>
+          </lable>
+          <select onChange={handelChangeSubject} className="custom-select " required>
+            <option>All</option>
             {subject?.map((data) => (
               <option value={data.id}> {data.subjectName}</option>
             ))}
@@ -205,13 +322,17 @@ function MarkManagement(props) {
                   </tr>
                 </thead>
                 <tbody>
-                  {students.map((item, index) => (
+                  {students?.map((item, index) => (
                     <tr key={item.id} onClick={(e) => handelClickStudent(item.id)}>
                       <td>{index + 1}</td>
                       <td>{`HS${item.id}`}</td>
-                      <td>{item.nameStudent}</td>
-                      <td>0</td>
-                      <td onClick={(e) => handleAddMark(item.id)}>
+                      <td>{item?.nameStudent}</td>
+                      <td>
+                        <span className="circle">
+                          {count_element_in_array(item?.id, subjectSelect?.id, semesterSelect, mark)}
+                        </span>
+                      </td>
+                      <td onClick={(e) => handleAddMark(item)}>
                         <ControlPointIcon style={{ color: 'blue' }} />
                       </td>
                     </tr>
@@ -228,7 +349,7 @@ function MarkManagement(props) {
         <div className="col-md-7 container ">
           <div class="card shadow mb-4">
             <div class="card-header py-3">
-              <h6 class="m-0 font-weight-bold text-primary">DANH SÁCH HỌC SINH {students.length}</h6>
+              <h6 class="m-0 font-weight-bold text-primary">ĐIỂM CHI TIẾT</h6>
             </div>
             <div className="table-responsive scrol-Table">
               <table className="table table-hover" id="dataTable" width="100%" cellspacing="0">
@@ -243,21 +364,23 @@ function MarkManagement(props) {
                   </tr>
                 </thead>
                 <tbody>
-                  {students.map((item, index) => (
-                    <tr key={item.id} onClick={(e) => handelClickStudent(item.id)}>
-                      <td>{index + 1}</td>
-                      <td>{`HS${item.id}`}</td>
-                      <td>{item.nameStudent}</td>
+                  {resMarkDetail?.map((item) => (
+                    <tr
+                      key={item.id}
+                      onClick={(e) => {
+                        if (window.confirm(`Xóa điểm môn ${subjectSelect?.subjectName}?`)) {
+                          handleDeleteMarkDetail(item.id);
+                        }
+                      }}
+                    >
                       <td>
-                        <ControlPointIcon style={{ color: 'blue' }} />
+                        <DeleteIcon style={{ color: 'red' }} />
                       </td>
-
-                      <td>
-                        <ControlPointIcon style={{ color: 'blue' }} />
-                      </td>
-                      <td>
-                        <ControlPointIcon style={{ color: 'blue' }} />
-                      </td>
+                      <td>{subjectSelect?.subjectName}</td>
+                      <td>{item?.mark}</td>
+                      <td>{item?.markType.markTypeName}</td>
+                      <td>{item?.markType.markNumber}</td>
+                      <td>{item?.semester}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -268,38 +391,28 @@ function MarkManagement(props) {
       </div>
       <Modal size="lg" show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Ghi Điểm Nguyễn Quốc Huy - Hk1</Modal.Title>
+          <Modal.Title>
+            Ghi Điểm {studentSelect?.nameStudent} môn {subjectSelect?.subjectName} - HK{semesterSelect}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div className="row container">
             <form onSubmit={handleSubmit(onSubmit)}>
-              <div>
-                <lable>
-                  <b>Giáo Viên</b>
-                </lable>
-                <h6>Nguyen Quoc Huy</h6>
-              </div>
-
-              <div className="form-group">
-                <label>
-                  <b>Lop</b>
-                </label>
-                <select {...register('clazzid')} className="custom-select " required>
-                  <option value="ALL"> Chọn Lớp ALL--</option>
-                  {clazz?.map((data) => (
-                    <option value={data.id}> {data.nameClazz}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label>
-                  <b>Lop</b>
-                </label>
-                <select {...register('roleClazz')} className="custom-select " required>
-                  <option value="Quản nhiệm">Quản nhiệm</option>
-                  <option value="Bộ môn">Bộ môn</option>
-                </select>
+              <div className="form-row">
+                <div className="col-md-4">
+                  <Input type="number" label="Số Điểm" name="mark" required register={register} />
+                </div>
+                <div className="form-group col-md-8">
+                  <label>
+                    <b>Loại Điểm</b>
+                  </label>
+                  <select {...register('markType')} className="custom-select " required>
+                    <option value="ALL"> Chọn ALL--</option>
+                    {markType?.map((data) => (
+                      <option value={data.id}> {data.markTypeName}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               <Button variant="danger" style={{ marginRight: '10px' }} onClick={handleClose}>

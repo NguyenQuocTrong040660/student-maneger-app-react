@@ -209,7 +209,7 @@ function TeacherClazz(props) {
 
               <div className="form-group">
                 <label>
-                  <b>Lop</b>
+                  <b>Lớp</b>
                 </label>
                 <select {...register('clazzid')} className="custom-select " required>
                   <option value="ALL"> Chọn Lớp ALL--</option>
@@ -221,7 +221,7 @@ function TeacherClazz(props) {
 
               <div className="form-group">
                 <label>
-                  <b>Lop</b>
+                  <b>Vai trò</b>
                 </label>
                 <select {...register('roleClazz')} className="custom-select " required>
                   <option value="Quản nhiệm">Quản nhiệm</option>

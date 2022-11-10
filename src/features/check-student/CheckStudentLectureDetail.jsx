@@ -23,6 +23,7 @@ import datesAPI from '../../api/datesAPI';
 import scheduleAPI from '../../api/scheduleAPI';
 import scheduleEvalueAPI from '../../api/scheduleEvalueAPI';
 import scheduleEvalueDetailAPI from '../../api/scheduleEvalueDetailAPI';
+import moment from 'moment';
 CheckStudentLectureDetail.propTypes = {};
 
 function CheckStudentLectureDetail(props) {
@@ -44,6 +45,13 @@ function CheckStudentLectureDetail(props) {
   //id off Schedule-Evalue
   //idLecture Off Schedule
   const { idLecture, id } = useParams();
+
+  //Get Now day(lấy ngày hệ thống hiện tại trên máy tính)
+  var today = new Date();
+  var dd = String(today.getDate()).padStart(2, '0');
+  var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+  var yyyy = today.getFullYear();
+  today = yyyy + '/' + mm + '/' + dd;
 
   //CAll API OF Schedule to get IdClazz => getList Student.
   useEffect(() => {
@@ -190,15 +198,26 @@ function CheckStudentLectureDetail(props) {
 
   //Modal
   const handleClose = () => setShow(false);
+
+  //BEGIN  Click Point (Khi Click + Kiểm tra ngày hợp lệ để đánh giá ====)
+  //Required: ngày hệ thống và ngày lịch dạy phải hợp lệ.
+  console.log(scheduleEvalue);
   const handleShow = (e) => {
-    console.log('value ID cua Offend ', e);
-    setCheckOffence(e);
-    if (checkStudent !== undefined) {
-      setShow(true);
-    }
-    if (checkStudent === undefined) {
-      enqueueSnackbar('Click chọn học sinh để đánh giá!!', { variant: 'error' });
-      setShow(false);
+    const curentDate = today; //false
+    const lectureDateStart = moment(scheduleEvalue?.schedule.dateStart).format('yyyy-MM-DD'); //false
+    var bool1 = moment(curentDate).isSame(lectureDateStart); //false
+    if (bool1 === true) {
+      console.log('value ID cua Offend ', e);
+      setCheckOffence(e);
+      if (checkStudent !== undefined) {
+        setShow(true);
+      }
+      if (checkStudent === undefined) {
+        enqueueSnackbar('Click chọn học sinh để đánh giá!!', { variant: 'error' });
+        setShow(false);
+      }
+    } else {
+      enqueueSnackbar('Ngày đánh giá không hợp lệ!', { variant: 'error' });
     }
   };
 
@@ -249,12 +268,19 @@ function CheckStudentLectureDetail(props) {
 
   //Begin Xóa CheckVP
   const handleDeleteCheckVP = async (values) => {
-    try {
-      const rs = await scheduleEvalueDetailAPI.deleteDetailEvalue(values);
-      enqueueSnackbar('Xóa thành cônng!', { variant: 'success' });
-      setIsLoad(!isLoad);
-    } catch (e) {
-      enqueueSnackbar('Xóa không thành công!', { variant: 'error' });
+    const curentDate = today; //false
+    const lectureDateStart = moment(scheduleEvalue?.schedule.dateStart).format('yyyy-MM-DD'); //false
+    var bool1 = moment(curentDate).isSame(lectureDateStart); //false
+    if (bool1 === true) {
+      try {
+        const rs = await scheduleEvalueDetailAPI.deleteDetailEvalue(values);
+        enqueueSnackbar('Xóa thành cônng!', { variant: 'success' });
+        setIsLoad(!isLoad);
+      } catch (e) {
+        enqueueSnackbar('Xóa không thành công!', { variant: 'error' });
+      }
+    } else {
+      enqueueSnackbar('Ngày không hợp lệ để xóa!', { variant: 'error' });
     }
   };
 
